@@ -22,8 +22,11 @@ public class ConnectionHandler implements  Runnable{
     public void run() {
         String message;
         try {
-            while((message = reader.readLine())!= null) {
-                ClientReceiver.receive(message);
+            while ((message = reader.readLine()) != null) {
+                if(message.startsWith("/online")){
+                    String[] splitMessage = message.split(" ", 2);
+                    ClientReceiver.receiveList(splitMessage[1]);
+                } else ClientReceiver.receive(message);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);

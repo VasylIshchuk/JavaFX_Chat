@@ -38,7 +38,7 @@ public class Application extends javafx.application.Application {
     }
     private void onCloseApplication(Stage stage, ConnectionHandler connectionHandler){
         stage.setOnCloseRequest(event -> {
-            connectionHandler.send("left a chat");
+            connectionHandler.send("EXIT");
             Platform.exit();
             System.exit(0);
         });

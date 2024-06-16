@@ -10,15 +10,18 @@ import java.util.Map;
 public class Server {
     ServerSocket serverSocket;
     Map<String, ServerHandler> clients = new HashMap<>();
+    public static final String BLUE = "\u001B[34m";
+    public static final String RESET = "\u001B[0m";
+    public static final String CYAN = "\u001B[36m";
 
     public void start(int port)  {
         try {
             serverSocket = new ServerSocket(port); //ServerSocket creates a socket to be attached to a port.
-            System.out.println(ColorANSI.BLUE + "Server started" + "\n" + ColorANSI.RESET );
+            System.out.println(BLUE + "Server started" + "\n" + RESET );
             while (true) {
                 Socket clientSocket = serverSocket.accept();
 //            ".accept()" is used to wait. Stops program until it detects a connection from the client.
-                System.out.println(ColorANSI.CYAN + "Client connected" + ColorANSI.RESET);
+                System.out.println(CYAN + "Client connected" + RESET);
                 ServerHandler serverHandler = new ServerHandler(clientSocket, this);
                 Thread thread = new Thread(serverHandler);
                 thread.start();

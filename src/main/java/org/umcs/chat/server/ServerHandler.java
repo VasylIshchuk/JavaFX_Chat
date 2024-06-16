@@ -37,8 +37,11 @@ public class ServerHandler implements  Runnable{
                     server.disconnect("left a chat", this);
                     break;
                 }else if(message.equals("/online")){
-                    for(String username :server.clients.keySet())
-                        writer.println(username);
+                    StringBuilder onlineUsers = new StringBuilder();
+                    for(String username : server.clients.keySet())
+                        onlineUsers.append(username).append(",");
+                    writer.println("/online " + onlineUsers);
+                    server.broadcast("/online " + onlineUsers,this);
                 }else if(message.startsWith("/w ")){
                     String[] splitMessage = message.split(" ",3);
                     server.privateMessage(splitMessage[2],this,server.clients.get(splitMessage[1]));
@@ -56,7 +59,8 @@ public class ServerHandler implements  Runnable{
     }
 
     public void send(String message, ServerHandler sender){
-        writer.println(sender.username + ": " + message);
+        if(message.startsWith("/online ")) writer.println(message);
+         else writer.println(sender.username + ": " + message);
     }
 
 
