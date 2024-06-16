@@ -33,54 +33,50 @@ public class ServerHandler implements  Runnable{
             clientRegistration();
             String message;
             while((message = reader.readLine())!= null){
-                switch (message){
-                    case "EXIT" :
-                        server.disconnect("left a chat", this);
-                        break;
-                    case "/online" :
-                        for(String username :server.clients.keySet())
-                            writer.println(username);
-                    case "/w " :
-                        String[] splitMessage = message.split(" ",3);
-                        server.privateMessage(splitMessage[2],this,server.clients.get(splitMessage[1]));
-                    default:
-                        server.broadcast(message,this);
+                if (message.equals("EXIT")) {
+                    server.disconnect("left a chat", this);
+                    break;
+                }else if(message.equals("/online")){
+                    StringBuilder onlineUsers = new StringBuilder();
+                    for(String username : server.clients.keySet())
+                        onlineUsers.append(username).append(",");
+                    writer.println("/online " + onlineUsers);
+                    server.broadcast("/online " + onlineUsers,this);
+                }else if(message.startsWith("/w ")){
+                    String[] splitMessage = message.split(" ",3);
+                    server.privateMessage(splitMessage[2],this,server.clients.get(splitMessage[1]));
                 }
+                else server.broadcast(message,this);
             }
             clientSocket.close();
-            System.out.println(ColorANSI.MAGENTA + "Client disconnected" + ColorANSI.RESET);
+            System.out.println("Client disconnected");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
     public void error(){
-        writer.println(ColorANSI.MAGENTA +
-                "This user is not connected -_-" +
-                ColorANSI.RESET);
+        writer.println("This user is not connected -_-" );
     }
 
     public void send(String message, ServerHandler sender){
-        writer.println(ColorANSI.BLUE +
-                sender.username + " " +
-                ColorANSI.RESET +
-                message);
+        if(message.startsWith("/online ")) writer.println(message);
+         else writer.println(sender.username + ": " + message);
     }
 
 
     private void clientRegistration() throws IOException {
         writer.println();
-        writer.println(ColorANSI.BLUE + "Welcome to the server ^_^" );
+        writer.println("Welcome to the server ^_^");
         getUsername();
-        writer.println(ColorANSI.BLUE + "Thanks ^-^" );
+        writer.println("Thanks ^-^");
         writer.println("Now you can chat with other users ^.^");
         writer.println("Additionally, if you want to leave the server, write \"EXIT\"");
-        writer.println("Let's go!" + ColorANSI.RESET);
+        writer.println("Let's go!");
         writer.println();
     }
 
     private void getUsername() throws IOException {
-        writer.println("Write your username so that other users know that you have connected to the server o_o"
-                + ColorANSI.RESET);
+        writer.println("Write your username so that other users know that you have connected to the server o_o");
         username = reader.readLine();
 
         boolean uniqueUsername = false;
@@ -88,8 +84,8 @@ public class ServerHandler implements  Runnable{
             boolean isUnique = true;
             for (String key : server.clients.keySet() ) {
                 if (username.equals(key)) {
-                    writer.println(ColorANSI.MAGENTA + "Sorry, this username is already in use. " +
-                            "Please try again o.o" + ColorANSI.RESET );
+                    writer.println( "Sorry, this username is already in use. \n" +
+                            "Please try again o.o" );
                     username = reader.readLine();
                     isUnique = false;
                     break;
@@ -99,11 +95,7 @@ public class ServerHandler implements  Runnable{
         }
         server.clients.put(username, this);
 
-        server.broadcast(ColorANSI.RESET +
-                        ColorANSI.GREEN +
-                        "joined" +
-                        ColorANSI.RESET,
-                this);
+        server.broadcast("joined" , this);
     }
 
 }

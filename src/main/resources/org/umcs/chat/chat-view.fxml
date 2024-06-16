@@ -10,24 +10,24 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<SplitPane dividerPositions="0.9927270891562096" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="630.0" prefWidth="507.0"
+<SplitPane dividerPositions="0.9771450370155526" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="748.0" prefWidth="738.0"
            xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/22" fx:controller="org.umcs.chat.ChatController">
     <items>
         <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="520.0" prefWidth="303.0">
             <children>
-                <VBox layoutX="10.0" layoutY="5.0" prefHeight="560.0" prefWidth="481.0">
+                <VBox layoutX="10.0" layoutY="5.0" prefHeight="672.0" prefWidth="698.0">
                     <children>
-                        <TextArea prefHeight="559.0" prefWidth="479.0">
+                        <TextArea fx:id="textArea" prefHeight="671.0" prefWidth="698.0">
                             <font>
                                 <Font size="16.0" />
                             </font>
                         </TextArea>
                     </children>
                 </VBox>
-                <HBox layoutX="9.0" layoutY="571.0" prefHeight="59.0" prefWidth="481.0">
+                <HBox layoutX="10.0" layoutY="687.0" prefHeight="59.0" prefWidth="698.0">
                     <children>
-                        <TextField prefHeight="47.0" prefWidth="423.0" />
-                        <Button mnemonicParsing="false" prefHeight="47.0" prefWidth="91.0" text="send" textAlignment="CENTER" textFill="DARKCYAN">
+                        <TextField fx:id="textField" onAction="#onSendMessage" prefHeight="47.0" prefWidth="612.0" />
+                        <Button onAction="#onSendMessage" mnemonicParsing="false" prefHeight="47.0" prefWidth="91.0" text="send" textAlignment="CENTER" textFill="DARKCYAN">
                             <font>
                                 <Font name="System Italic" size="16.0" />
                             </font>
@@ -36,9 +36,9 @@
                 </HBox>
             </children>
         </AnchorPane>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="398.0" prefWidth="332.0">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="628.0" prefWidth="0.0">
             <children>
-                <ListView layoutX="4.0" layoutY="5.0" prefHeight="632.0" prefWidth="158.0" />
+                <ListView fx:id="listView" layoutX="4.0" layoutY="5.0" prefHeight="728.0" prefWidth="309.0" />
             </children></AnchorPane>
     </items>
 </SplitPane>
