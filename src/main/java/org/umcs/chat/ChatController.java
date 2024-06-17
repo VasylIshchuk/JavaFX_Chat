@@ -26,17 +26,19 @@ public class ChatController {
         String message = textField.getText();
         textField.clear();
         client.send(message);
-        client.send("/online");
 //        in order to update the list of members after each message
         onReceiveMessage(message);
-        if (message.equals("EXIT")){
+        if (message.equals("/exit")){
             Platform.exit();
             System.exit(0);
         }
-
     }
+
     public void onReceiveMessage(String message){
-        Platform.runLater(() -> textArea.appendText(message + "\n"));
+        Platform.runLater(() -> {
+            textArea.appendText(message + "\n");
+            if(message.contains("[SERVER]")) client.send("/online");
+        });
     }
 
     public void takeListOfMembers(String message) {
