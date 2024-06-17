@@ -23,6 +23,7 @@ public class Application extends javafx.application.Application {
     public static void main(String[] args) {
         launch();
     }
+
     private ConnectionHandler connectionWithServer(){
         try {
             Socket clientSocket = new Socket("localhost",1599);
@@ -36,9 +37,10 @@ public class Application extends javafx.application.Application {
             throw new RuntimeException(e);
         }
     }
+
     private void onCloseApplication(Stage stage, ConnectionHandler connectionHandler){
         stage.setOnCloseRequest(event -> {
-            connectionHandler.send("EXIT");
+            connectionHandler.send("/exit");
             Platform.exit();
             System.exit(0);
         });

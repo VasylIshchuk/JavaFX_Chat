@@ -33,20 +33,23 @@ public class Server {
 
     public void broadcast(String message, ServerHandler sender){
         for(ServerHandler receiver : clients.values()){
-            if(!receiver.equals(sender)) receiver.send(message, sender);
+            if(message.contains("/online")) receiver.sendListMembersOnline(message);
+            else if(message.startsWith("[SERVER]: ") && !receiver.equals(sender)) receiver.sendServerMessage(message);
+            else if(!receiver.equals(sender)) receiver.sendMessage(message, sender);
         }
     }
+
     public void disconnect(String message, ServerHandler serverHandler){
         clients.remove(serverHandler.username);
         for(ServerHandler receiver : clients.values()){
-            if(!receiver.equals(serverHandler)) receiver.send(message, serverHandler);
+            if(!receiver.equals(serverHandler)) receiver.sendServerMessage(message);
         }
     }
     public void privateMessage(String message, ServerHandler sender, ServerHandler receiver){
         boolean isConnected = false;
         for(ServerHandler client : clients.values()){
             if(client.equals(receiver)){
-                receiver.send(message,sender);
+                receiver.sendPrivateMessage(message,sender);
                 isConnected = true;
                 break;
             }

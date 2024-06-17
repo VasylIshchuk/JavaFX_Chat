@@ -23,7 +23,7 @@ public class ConnectionHandler implements  Runnable{
         String message;
         try {
             while ((message = reader.readLine()) != null) {
-                if(message.startsWith("/online")){
+                if(message.contains("/online")){
                     String[] splitMessage = message.split(" ", 2);
                     ClientReceiver.receiveList(splitMessage[1]);
                 } else ClientReceiver.receive(message);
