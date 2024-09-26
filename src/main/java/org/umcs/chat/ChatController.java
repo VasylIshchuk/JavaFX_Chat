@@ -13,34 +13,45 @@ public class ChatController {
     public TextField textField;
     @FXML
     public ListView listView;
-
+    //  This field is need to send a message to the server
     public ConnectionHandler client;
-//  This field is need to send a message to the server
+
+    //    This method is automatically called after the FXML file is loaded (Scene scene = new Scene(fxmlLoader.load());).
+    //    We use it to set the controller in the ClientReceiver.
     public void initialize() {
         ClientReceiver.controller = this;
+        textArea.setEditable(false);
     }
-//    This method is automatically called after the FXML file is loaded (Scene scene = new Scene(fxmlLoader.load());).
-//    We use it to set the controller in the ClientReceiver.
+
+    //    The method is needed to send messages to other users (to the server).
     @FXML
-    public void onSendMessage(){
+    public void onSendMessage() {
         String message = textField.getText();
         textField.clear();
         client.send(message);
-//        in order to update the list of members after each message
-        onReceiveMessage(message);
-        if (message.equals("/exit")){
+        checkExitCommand(message);
+    }
+
+    private void checkExitCommand(String message) {
+        if (message.equals("/exit")) {
             Platform.exit();
             System.exit(0);
         }
     }
 
-    public void onReceiveMessage(String message){
+    //  The method is needed to show the messages you send and receive from other users on your screen.
+    public void onReceiveMessage(String message) {
         Platform.runLater(() -> {
             textArea.appendText(message + "\n");
-            if(message.contains("[SERVER]")) client.send("/online");
+            updateListOfMembers(message);
         });
     }
 
+    private void updateListOfMembers(String message) {
+        if (message.contains("[SERVER]")) client.send("/online");
+    }
+
+    //  Method is needed to show which users are online on "listView".
     public void takeListOfMembers(String message) {
         Platform.runLater(() -> {
             listView.getItems().clear();
