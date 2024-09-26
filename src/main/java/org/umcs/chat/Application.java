@@ -3,7 +3,6 @@ package org.umcs.chat;
 import javafx.application.Platform;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-//import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 
@@ -15,16 +14,33 @@ public class Application extends javafx.application.Application {
     public void start(Stage stage) throws IOException {
         FXMLLoader fxmlLoader = new FXMLLoader(Application.class.getResource("chat-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load());
+        addStyleCss(scene);
+        addTitle(stage);
+        setMaxAndMinSizeStage(stage);
         ConnectionHandler connectionHandler = connectionWithServer();
         onCloseApplication(stage, connectionHandler);
-//        addIconAndTitle(stage);
-//        addStyleCss(scene);
         stage.setScene(scene);
         stage.show();
     }
 
     public static void main(String[] args) {
         launch();
+    }
+
+    private void addTitle(Stage stage) {
+        stage.setTitle("CHAT");
+    }
+
+    private void setMaxAndMinSizeStage(Stage stage) {
+        stage.setMaxHeight(780);
+        stage.setMaxWidth(738);
+        stage.setMinHeight(684);
+        stage.setMinWidth(453);
+    }
+
+    private void addStyleCss(Scene scene) {
+        String css = this.getClass().getResource("style.css").toExternalForm();
+        scene.getStylesheets().add(css);
     }
 
     private ConnectionHandler connectionWithServer() {
@@ -55,14 +71,4 @@ the setOnCloseRequest method is called, which performs two operations when the w
 Platform.exit(); - This call closes the JavaFX Application Thread, which stops the execution of the JavaFX application
 System.exit(0); - This call terminates the execution of the entire Java Virtual Machine (JVM).
  */
-//    private void addIconAndTitle(Stage stage){
-//        Image icon = new Image("icon.png");
-//        stage.getIcons().add(icon);
-//        stage.setTitle("CHAT");
-//    }
-//
-//    private void addStyleCss(Scene scene){
-//        String css = this.getClass().getResource("stuyle.css").toExternalForm();
-//        scene.getStylesheets().add(css);
-//    }
 }

@@ -2,6 +2,7 @@ package org.umcs.chat;
 
 import javafx.application.Platform;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -13,6 +14,8 @@ public class ChatController {
     public TextField textField;
     @FXML
     public ListView listView;
+    @FXML
+    public Label counter;
     //  This field is need to send a message to the server
     public ConnectionHandler client;
 
@@ -20,7 +23,8 @@ public class ChatController {
     //    We use it to set the controller in the ClientReceiver.
     public void initialize() {
         ClientReceiver.controller = this;
-        textArea.setEditable(false);
+        textArea.setEditable(false); // forbidden to write text in the  TextArea
+        textArea.setWrapText(true); // to transfer text in new line auto
     }
 
     //    The method is needed to send messages to other users (to the server).
@@ -56,6 +60,7 @@ public class ChatController {
         Platform.runLater(() -> {
             listView.getItems().clear();
             listView.getItems().addAll(message.split(","));
+            onCountMembers(message);
         });
     }
     /*
@@ -65,4 +70,9 @@ public class ChatController {
     When you're working with JavaFX and want to change something in the UI from another thread
     (not the main JavaFX thread), you need to use Platform.runLater().
      */
+
+    public void onCountMembers(String message) {
+        int countMembers = message.split(",").length;
+        counter.setText(String.valueOf(countMembers));
+    }
 }
