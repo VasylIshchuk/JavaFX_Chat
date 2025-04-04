@@ -1,4 +1,4 @@
-package org.umcs.chat.server;
+package org.umcs.chat;
 
 public class Main {
     public static void main(String[] args) {

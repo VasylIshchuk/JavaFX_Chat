@@ -1,4 +1,6 @@
-package org.umcs.chat.server;
+package org.umcs.chat.handlers;
+
+import org.umcs.chat.Server;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -11,7 +13,7 @@ public class ServerHandler implements Runnable {
     private final BufferedReader reader;
     private final PrintWriter writer;
     private final Socket clientSocket;
-    String username;
+
 
     public ServerHandler(Socket clientSocket, Server server) {
         this.clientSocket = clientSocket;
@@ -26,7 +28,6 @@ public class ServerHandler implements Runnable {
 
     @Override
     public void run() {
-        clientRegistration();
         parseClientMessage();
         try {
             clientSocket.close();
@@ -40,20 +41,42 @@ public class ServerHandler implements Runnable {
         String message;
         try {
             while ((message = reader.readLine()) != null) {
-                if (message.equals("/exit")) {
-                    server.disconnect("[SERVER]: " + username + " left the chat", this);
+                System.out.println(message);
+                if (message.startsWith("/singUp ")) {
+                    String[] splitMessage = message.split(" ", 3);
+                    if(validateUniqueUsername(splitMessage[1])){
+                        server.clientsRegistered.put(splitMessage[1],splitMessage[2]);
+                        server.clientsOnline.put(this,splitMessage[1]);
+                        sendMessageUserRegistered(true);
+                        announceNewConnection();
+                    }
+                    sendMessageUserRegistered(false);
+                } else if (message.startsWith("/logIn ")) {
+                    String[] splitMessage = message.split(" ", 3);
+                    if(verifyUserRegistration(splitMessage[1], splitMessage[2])){
+                        server.clientsOnline.put(this,splitMessage[1]);
+                        sendMessageUserExists(true);
+                        announceNewConnection();
+                    }
+                    sendMessageUserExists(false);
+                } else if (message.equals("/exit")) {
+                    server.disconnect("[SERVER]: " + server.clientsOnline.get(this) + " left the chat", this);
                     break;
                 } else if (message.equals("/online")) {
                     //      This command is automatically sent after connecting and disconnecting the user to update
                     //      the list of online members of the chat on the "listView" in the "ChatController" class,
                     //      the "updateListOfMembers" method.
                     StringBuilder onlineUsers = new StringBuilder();
-                    for (String username : server.clientsOnline.keySet())
+                    for (String username : server.clientsOnline.values())
                         onlineUsers.append(username).append(",");
                     server.broadcast(message + " " + onlineUsers, this);
                 } else if (message.startsWith("/pm ")) {
                     String[] splitMessage = message.split(" ", 3);
-                    server.privateMessage(splitMessage[2], this, server.clientsOnline.get(splitMessage[1]));
+                    for(ServerHandler receiver : server.clientsOnline.keySet()){
+                        if(server.clientsOnline.get(receiver).equals(splitMessage[1])){
+                            server.privateMessage(splitMessage[2], this, receiver );
+                        }
+                    }
                 } else if (message.startsWith("/command")) {
                     StringBuffer text = new StringBuffer();
                     text.append("\t• \"/exit\" - to exit the server;\n").append("\t• \"/pm username_receiver message\" - to send a private message;");
@@ -63,6 +86,14 @@ public class ServerHandler implements Runnable {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void sendMessageUserRegistered(boolean isRegistered) {
+        writer.println("/singUp " + isRegistered);
+    }
+
+    public void sendMessageUserExists(boolean isRegistered) {
+        writer.println("/logIn " + isRegistered);
     }
 
     public void error() {
@@ -78,7 +109,7 @@ public class ServerHandler implements Runnable {
     }
 
     public void sendMessage(String message, ServerHandler sender) {
-        writer.println(sender.username + ": " + message);
+        writer.println(server.clientsOnline.get(sender) + ": " + message);
     }
 
     public void sendMessageToYourself(String message) {
@@ -86,70 +117,32 @@ public class ServerHandler implements Runnable {
     }
 
     public void sendPrivateMessageToYourself(String message, ServerHandler receiver) {
-        writer.println("You (PM for " + receiver.username + "): " + message);
+        writer.println("You (PM for " + server.clientsOnline.get(receiver) + "): " + message);
     }
 
     public void sendPrivateMessage(String message, ServerHandler sender) {
-        writer.println(sender.username + " (PM): " + message);
+        writer.println(server.clientsOnline.get(sender) + " (PM): " + message);
     }
 
-    private void clientRegistration() {
-        displayWelcomeMessage();
-        promptForUsernameMessage();
-        askUsername();
-        addNewClient();
-        showFinishRegistrationMessage();
-        showChatInstructions();
-        announceNewConnection();
-    }
-
-    private void displayWelcomeMessage() {
-        writer.println("Welcome to the server ^_^");
-    }
-
-    private void promptForUsernameMessage() {
-        writer.println("Enter your username so other users know who is connecting to the chat o_o");
-    }
-
-    private void addNewClient() {
-        server.clientsOnline.put(username, this);
+    private boolean verifyUserRegistration(String username, String password) {
+        for (String key :  server.clientsRegistered.keySet()) {
+            if (username.equals(key) && server.clientsRegistered.get(key).equals(password)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void announceNewConnection() {
-        server.broadcast("[SERVER]: " + username + " joined", this);
-    }
-
-    private void showFinishRegistrationMessage() {
-        writer.println("Thanks ^-^\n" + "Now you can chat with other users ^.^\n");
-    }
-
-    private void showChatInstructions() {
-        StringBuffer text = new StringBuffer();
-        text.append("Additional commands:\n").append("\t• \"/exit\" - to exit the server;\n").append("\t• \"/pm username_receiver message\" - to send a private message;\n").append("\t• \"/command\" - to show all commands\n").append("Let's go!\n");
-        writer.println(text);
-    }
-
-    private void askUsername() {
-        try {
-            username = reader.readLine();
-            writer.println(username);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        if (!validateUniqueUsername(username)) askUsername();
+        server.broadcast("[SERVER]: " + server.clientsOnline.get(this) + " joined", this);
     }
 
     private boolean validateUniqueUsername(String username) {
-        for (String key : server.clientsOnline.keySet()) {
+        for (String key :  server.clientsRegistered.keySet()) {
             if (username.equals(key)) {
-                notifyUsernameInUse();
                 return false;
             }
         }
         return true;
-    }
-
-    private void notifyUsernameInUse() {
-        writer.println("Sorry, this username is already in use. \n" + "Please try again o.o");
     }
 }

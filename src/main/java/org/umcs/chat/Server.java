@@ -1,5 +1,7 @@
-package org.umcs.chat.server;
+package org.umcs.chat;
 
+
+import org.umcs.chat.handlers.ServerHandler;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -9,7 +11,8 @@ import java.util.Map;
 
 public class Server {
     ServerSocket serverSocket;
-    Map<String, ServerHandler> clientsOnline = new HashMap<>();
+    public Map<ServerHandler, String> clientsOnline = new HashMap<>();
+    public Map<String,String> clientsRegistered = new HashMap<>();
     public static final String BLUE = "\u001B[34m";
     public static final String RESET = "\u001B[0m";
     public static final String CYAN = "\u001B[36m";
@@ -32,7 +35,7 @@ public class Server {
     }
 
     public void broadcast(String message, ServerHandler sender) {
-        for (ServerHandler receiver : clientsOnline.values()) {
+        for (ServerHandler receiver : clientsOnline.keySet()) {
             if (message.contains("/online")) receiver.sendListMembersOnline(message);
             else if (message.startsWith("[SERVER]: ")) receiver.sendServerMessage(message);
             else if (!receiver.equals(sender)) receiver.sendMessage(message, sender);
@@ -41,8 +44,8 @@ public class Server {
     }
 
     public void disconnect(String message, ServerHandler serverHandler) {
-        clientsOnline.remove(serverHandler.username);
-        for (ServerHandler receiver : clientsOnline.values()) {
+        clientsOnline.remove(serverHandler);
+        for (ServerHandler receiver : clientsOnline.keySet()) {
             receiver.sendServerMessage(message);
         }
     }
@@ -50,7 +53,7 @@ public class Server {
     public void privateMessage(String message, ServerHandler sender, ServerHandler receiver) {
         sender.sendPrivateMessageToYourself(message, receiver);
         boolean isConnectedUser = false;
-        for (ServerHandler client : clientsOnline.values()) {
+        for (ServerHandler client : clientsOnline.keySet()) {
             if (client.equals(receiver)) {
                 receiver.sendPrivateMessage(message, sender);
                 isConnectedUser = true;

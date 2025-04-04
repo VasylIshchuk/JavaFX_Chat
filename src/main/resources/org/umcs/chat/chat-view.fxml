@@ -15,7 +15,7 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="755.0"
             prefWidth="738.0" xmlns="http://javafx.com/javafx/22" xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="org.umcs.chat.ChatController">
+            fx:controller="org.umcs.chat.controllers.ChatController">
     <children>
         <SplitPane dividerPositions="0.9832540417215389" layoutX="-2.0" layoutY="1.0" prefHeight="755.0"
                    prefWidth="738.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0"

@@ -1,4 +1,6 @@
-package org.umcs.chat;
+package org.umcs.chat.handlers;
+
+import org.umcs.chat.ClientReceiver;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -23,14 +25,22 @@ public class ConnectionHandler implements Runnable {
         String message;
         try {
             while ((message = reader.readLine()) != null) {
-                if (message.contains("/online")) {
-                    String[] splitMessage = message.split(" ", 2);
-                    ClientReceiver.receiveList(splitMessage[1]);
-                } else ClientReceiver.receive(message);
+                 if (message.contains("/singUp")) {
+                    ClientReceiver.userRegistered(Boolean.parseBoolean(getMessage(message)));
+                }else if (message.contains("/logIn")) {
+                    ClientReceiver.verifyUserRegistration(Boolean.parseBoolean(getMessage(message)));
+                }else if (message.contains("/online")) {
+                    ClientReceiver.receiveList(getMessage(message));
+                }else ClientReceiver.receive(message);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private String getMessage(String message){
+        String[] splitMessage = message.split(" ", 2);
+        return splitMessage[1];
     }
 
     public void send(String message) {
